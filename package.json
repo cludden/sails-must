@@ -1,0 +1,21 @@
+{
+  "name": "sails-must",
+  "version": "0.1.0",
+  "description": "a policy provider for sails",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "sails",
+    "hook",
+    "policies",
+    "policy",
+    "provider"
+  ],
+  "author": "chris ludden",
+  "license": "MIT",
+  "dependencies": {
+    "include-all": "^0.1.6"
+  }
+}
