@@ -1,12 +1,12 @@
 # sails-must
 
 ### Purpose
-to provide a `provider` object on the `sails` global object that contains all of your predefined policy factories. What is a policy factory? A policy factory is a configurable function that returns a valid sails policy.
+a more flexible, more DRY, policy pattern for `sails.js` apps
 
 
 
 ### Install
-`npm install --save sails-hook-policy-provider`
+`npm install --save sails-must`
 
 ### Getting Started
 Ok, before we get too far ahead, let's see why policyFactories are so great! Let's pretend we want to have certain routes available to different food lovers. Maybe a section for bacon lovers, pizza lovers, etc. We could make a separate policy for each of these, which might look something like the following:
@@ -21,7 +21,7 @@ module.exports = function(req, res, next) {
             return next('Only bacon lovers can view this section');            
         }
         // otherwise, all good
-        next()
+        next();
     });
 }
 ```
@@ -35,12 +35,12 @@ module.exports = function(req, res, next) {
             return next('Only pizza lovers can view this section');            
         }
         // otherwise, all good
-        next()
+        next();
     });
 }
 ```
 
-Not very flexible, or DRY for that matter. The same scenario could apply to an app that uses role-based access control and has numerous roles. Or our organization has many departments (accounting, finance, hr, it, procurement, etc) and we want to be able to apply policies based on our users' departments.
+Not very flexible, or DRY for that matter. The same scenario could apply to an app that uses role-based access control and has numerous roles. Or maybe our organization has many departments (accounting, finance, hr, it, procurement, etc) and we want to be able to apply policies based on our users' departments.
 
 Policy factories to the rescue! Let's begin by making our first policyFactory, a `loveToEat` policyFactory!
 
@@ -118,6 +118,80 @@ module.exports.policies = {
     }
 }
 ``` 
+
+### Advanced Usage
+#### Ability based access control
+For a scalable approach to authorization, we might store abilites in relation to a resource in our application
+```
+var abilities = [{
+    name: 'approve',
+    resource: 'users'
+}, {
+    name: 'block',
+    resource: 'users'
+}, {
+    name: 'post',
+    resource: 'articles'
+}, {
+    name: 'delete',
+    resource: 'articles'
+}, {
+    name: 'delete',
+    resource: 'comments'
+}]
+
+var async = require('async');
+async.each(abilities, function(ability, cb) {
+    Abilities.create(ability, cb);
+}, function(err) {
+    if (err) sails.log.error(err);
+});
+```
+
+We might then apply authorization based on these abilities using a policy factory that can grow to meet our needs as our app's functionality increases over time and new abilities are created;
+/api/policyFactories/to.js
+```
+module.exports = function(requiredAbility, resource) {
+    return function(req, res, next) {
+        req.user.populate('abilities').exec(function(err, user) {
+            // set conservative default value
+            var can = false;
+            
+            // loop through abilities until a suitable ability is found
+            user.abilities.every(function(ability) {
+                if (ability.name === requiredAbility && ability.resource === resource) {
+                     can = true; // set can to true
+                     return false; // return false to exit loop early
+                }
+                return true; // otherwise, keep searching
+            });
+            
+            if (!can) {
+                return next('Unauthorized');
+            }
+            next();
+        });
+    };
+}
+```
+
+/config/policies.js
+```
+var must = require('sails-must')({
+    chainables: ['able']
+});
+
+module.exports.policies = {
+    UserController: {
+        approve: ['authenticated', must.be.able.to('approve', 'users')],
+        block: ['authenticated', must.be.able.to('block', 'users')]
+    },
+    ArticleController: {
+        post: ['authenticated', must.be.able.to('post', 'articles')],
+        delete: ['authenticated', must.be.able.to('delete', 'articles')]
+    }
+}
+```
 
 ### Testing
 `npm test`
