@@ -1,4 +1,4 @@
-# sails-hook-policy-provider
+# sails-must
 
 ### Purpose
 to provide a `provider` object on the `sails` global object that contains all of your predefined policy factories. What is a policy factory? A policy factory is a configurable function that returns a valid sails policy.
@@ -44,7 +44,7 @@ Not very flexible, or DRY for that matter. The same scenario could apply to an a
 
 Policy factories to the rescue! Let's begin by making our first policyFactory, a `loveToEat` policyFactory!
 
-/api/policyFactories/mustLoveToEat.js
+/api/policyFactories/loveToEat.js
 ```
 module.exports = function(food) {
     return function(req, res, next) {
@@ -62,7 +62,7 @@ module.exports = function(food) {
 
 we could apply this policy factory in our `/config/policies.js` file like so:
 ```
-var must = require('sails-policy-provider')('/api/policyFactories');
+var must = require('sails-policy-provider')();
 module.exports.policies = {
     baconController: {
         '*': ['authenticated', must.loveToEat('bacon')]
@@ -73,6 +73,51 @@ module.exports.policies = {
     }
 }
 ```
+
+### API
+The provider is configurable using an optional `options` argument passed to the constructor
+```
+var Must = require('sails-must'),
+    must = Must({path: '/path/to/policy/factories/dir'});
+```
+
+The options hash currently accepts the following attributes:
+
+`options.path` - the path to the root directory containing all of the policy factories relative to the current working directory (process.cwd()). Defaults to `/api/policyFactories`
+`options.chainables` - an array of chainable method names. By default, you only get `be`
+
+To see chainables in use, see below:
+/api/policyFactories/eat.js (same as before, with simpler name)
+```
+module.exports = function(food) {
+    return function(req, res, next) {
+        req.user.populate('favoriteFoods').exec(function(err, user) {
+            // if the user doesn't like the given food, we prevent them from continuing
+            if (user.favoriteFoods.indexOf(food) === -1) {
+                return next('Only ' + food + ' lovers can view this endpoint');
+            }
+            // otherwise, all good!
+            next();
+        });
+    }
+}
+```
+
+/config/policies.js
+```
+var Must = require('sails-must'),
+    must = Must({chainables: ['love', 'to']});
+    
+module.exports.policies = {
+    baconController: {
+        '*': ['authenticated', must.love.to.eat('bacon')]
+    },
+    
+    pizzaController: {
+        '*': ['authenticated', must.love.to.eat('pizza')]
+    }
+}
+``` 
 
 ### Testing
 `npm test`
