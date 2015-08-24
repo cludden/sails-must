@@ -1,76 +1,50 @@
 'use strict';
 
-var includeAll = require('include-all');
+var _ = require ('lodash');
 
-
-/**
- * Creates and returns a new policyFactory provider
- *
- * @param {Object} [options] - provider options
- * @param {String} [options.path='/api/policyFactories'] - the path to the root directory containing all policy factories, relative to the process.cwd
- * @param {String[]} [options.chainables=['be']] - a list of chainable methods to define on the provider
- * @returns {Function}
+/*
+ *  TODO
+ *  Consider implementing as an installable hook. Would require users to set the 'policies' hook to false.
+ *  But then we could implement our own policies hook that would look for 'Object's with a build method,
+ *  and go ahead and build them for us.
+ *  
+ *  Also, clean this module up. It looks terrible!
  */
+
 module.exports = function(options) {
-    options = options ? options : {};
-
-    var must = function() {
-        this.version = '0.1.0';
-    };
-
-    // define defaults
-    var defaults = {
-        path: '/api/policyFactories',
-        chainables: ['be']
-    };
-
-    // set default path
-    options.path = options.path || defaults.path;
-
-    // set default chainable methods
-    options.chainables = options.chainables || [];
-    defaults.chainables.forEach(function(method) {
-        if (options.chainables.indexOf(method) === -1) {
-            options.chainables.push(method);
+    var options = options ? options : {};
+    
+    _.defaults (options, {
+        chainables: ['be'],
+        paths: {
+            factories: '/api/policyFactories',
+            modifiers: '/api/policyModifiers'
         }
     });
 
-    var utils = {
-        addProperty: function(ctx, name, getter) {
-            Object.defineProperty(ctx, name, {
-                get: function() {
-                    var result = getter.call(this);
-                    return result === undefined ? this : result;
-                },
-                configurable: true
-            });
-        }
-    };
-
-    must._addProperty = function(name, fn) {
-        utils.addProperty(this, name, fn);
-    };
-
-    // configure chainable methods
-    options.chainables.forEach(function(method) {
-        must._addProperty(method, function() {
-            return this;
-        });
-    });
-
-    // build factories dictionary
-    var factories = includeAll({
-        dirname: process.cwd() + options.path,
-        filter: /(.+)\.js$/,
+    var Must = require('./lib/must');
+    
+    var util = require('include-all')({
+        dirname: __dirname + '/lib/utils',
+        filter: /(.+)\.js/,
         optional: true
     });
 
-    // extend the provider with the factories
-    for (var factory in factories) {
-        if (factories.hasOwnProperty(factory)) {
-            must[factory] = factories[factory];
-        }
-    }
+    Must.addProperty = function(name, fn) {
+        util.addProperty(this.prototype, name, fn);
+    };
 
-    return must;
+    Must.addMethod = function(name, fn) {
+        util.addMethod(this.prototype, name, fn);
+    };
+
+    Must.addChainableMethod = function(name, fn, chainingBehavior) {
+        util.addChainableMethod(this.prototype, name, fn, chainingBehavior);
+    };
+    
+    require('./lib/chainables')(Must, options);
+    require('./lib/modifiers')(Must, options);
+    require('./lib/factories')(Must, options);
+    
+    return new Must();
 };
