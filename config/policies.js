@@ -1,7 +1,17 @@
 'use strict';
 
-var must = require('../');
+var must = require('../')({
+        paths: {
+            factories: '/api/factories',
+            modifiers: '/api/modifiers'
+        }
+    }),
+    build = must.build;
 
 module.exports.policies = {
-    userController: [must.be.ableTo('approve', 'users').or.be]
+    userController: {
+        approve: must.be.able.to('approve', 'users').build(),
+        create: must.be.able.to('create', 'users').build(),
+        destroy: must.be.able.to('destroy', 'users').build()
+    }
 };

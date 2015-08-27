@@ -2,8 +2,22 @@
 
 var _ = require('lodash');
 
-module.exports = function(options, abilities, resource) {
-    return function(req, res, next) {
-        req._sails.services['auth'].can(req.options.authMetaData.payload.user.id, abilites, resource, next);
+
+module.exports = {
+    type: 'property',
+    factory: function(options, abilities, resource) {
+        console.log('creating "able" policy with', options, abilities, resource);
+        return function(req, res, next) {
+            abilities = _.isArray(abilities) ? abilities : [abilities];
+
+            var userAbilities = req.body.user && req.body.user.abilities ? req.body.user.abilities : {};
+            userAbilities = userAbilities[resource] || [];
+
+            console.log(abilities, userAbilities);
+            if (_.intersection(abilities, userAbilities.length < abilities.length)) {
+                return next('unauthorized');
+            }
+            next();
+        }
     }
 };
