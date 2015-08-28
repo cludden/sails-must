@@ -15,5 +15,17 @@ module.exports = {
 
     admin: function(req, res) {
         res.ok('success!');
+    },
+
+    adultsOnly: function(req, res) {
+        res.ok('success!');
+    },
+
+    kidsOnly: function(req, res) {
+        res.ok('success!');
+    },
+
+    teensOnly: function(req, res) {
+        res.ok('success!');
     }
 };

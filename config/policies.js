@@ -13,6 +13,9 @@ module.exports.policies = {
         approve: must().be.able.to('approve', 'users').build(),
         create: must().be.able.to('create', 'users').or.be.able.to('*', 'users').build(),
         destroy: must().be.able.to('destroy', 'users').build(),
-        admin: must().be.able.to('*', 'users').or.be.a.member.of('admins').build()
+        admin: must().be.able.to('*', 'users').or.be.a.member.of('admins').build(),
+        adultsOnly: must().be.atLeast(18, 'years').old.build(),
+        kidsOnly: must().be.atMost(18, 'years').old.build(),
+        teensOnly: [must().be.atLeast(13, 'years').old.build(), must().be.atMost(18, 'years').old.build()]
     }
 };

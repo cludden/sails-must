@@ -142,5 +142,81 @@ describe('[controller] user', function() {
                 })
                 .expect(403, done);
         });
-    })
+    });
+
+    describe('#adultsOnly()', function() {
+        it('should fail if the user is not at least 18 years old', function(done) {
+            request.post(url('adults'))
+                .send({
+                    user: {
+                        birthday: '2000-01-01'
+                    }
+                })
+                .expect(403, done);
+        });
+
+        it('should succeed if the user is at least 18 years old', function(done) {
+            request.post(url('adults'))
+                .send({
+                    user: {
+                        birthday: '1990-01-01'
+                    }
+                })
+                .expect(200, done);
+        });
+    });
+
+    describe('#kidsOnly()', function() {
+        it('should succeed if the user is less than 18 years old', function(done) {
+            request.post(url('kids'))
+                .send({
+                    user: {
+                        birthday: '2000-01-01'
+                    }
+                })
+                .expect(200, done);
+        });
+
+        it('should fail if the user is more than 18 years old', function(done) {
+            request.post(url('kids'))
+                .send({
+                    user: {
+                        birthday: '1990-01-01'
+                    }
+                })
+                .expect(403, done);
+        });
+    });
+
+    describe('#teensOnly()', function() {
+        it('should fail if the user is less than 13 years old', function(done) {
+            request.post(url('teens'))
+                .send({
+                    user: {
+                        birthday: '2010-01-01'
+                    }
+                })
+                .expect(403, done);
+        });
+
+        it('should fail if the user is more than 18 years old', function(done) {
+            request.post(url('teens'))
+                .send({
+                    user: {
+                        birthday: '1990-01-01'
+                    }
+                })
+                .expect(403, done);
+        });
+
+        it('should succeed if the user is 15 years old', function(done) {
+            request.post(url('teens'))
+                .send({
+                    user: {
+                        birthday: '2000-01-01'
+                    }
+                })
+                .expect(200, done);
+        });
+    });
 });
