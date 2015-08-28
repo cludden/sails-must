@@ -13,7 +13,6 @@ describe('[controller] user', function() {
     });
 
     describe('#approve()', function() {
-
         it('should fail if the user does not have the "approve" ability for the "users" resource', function(done) {
             request.post(url('approve'))
                 .send({
@@ -42,9 +41,106 @@ describe('[controller] user', function() {
     });
 
     describe('#create()', function() {
-        it('should succeed if the user has the "create" ability');
-        it('should succeed if the user has the "*" ability');
-        it('should succeed if the user has both the "create" and the "*" ability');
-        it('should fail if the user does not have either the "create" or the "*" ability');
+        it('should succeed if the user has the "create" ability', function(done) {
+            request.post(url('create'))
+                .send({
+                    user: {
+                        abilities: {
+                            users: ['create']
+                        }
+                    }
+                })
+                .expect(200, done);
+        });
+
+        it('should succeed if the user has the "*" ability', function(done) {
+            request.post(url('create'))
+                .send({
+                    user: {
+                        abilities: {
+                            users: ['*']
+                        }
+                    }
+                })
+                .expect(200, done);
+        });
+
+        it('should succeed if the user has both the "create" and the "*" ability', function(done) {
+            request.post(url('create'))
+                .send({
+                    user: {
+                        abilities: {
+                            users: ['create', '*']
+                        }
+                    }
+                })
+                .expect(200, done);
+        });
+
+        it('should fail if the user does not have either the "create" or the "*" ability', function(done) {
+            request.post(url('create'))
+                .send({
+                    user: {
+                        abilities: {
+                            users: ['approve']
+                        }
+                    }
+                })
+                .expect(403, done);
+        });
     });
+
+    describe('#admin()', function() {
+        it('should succeed if the user has the "*" ability', function(done) {
+            request.post(url('admin'))
+                .send({
+                    user: {
+                        abilities: {
+                            users: ['approve', '*']
+                        },
+                        groups: ['something group']
+                    }
+                })
+                .expect(200, done);
+        });
+
+        it('should succeed if the user is a member of the "admins" group', function(done) {
+            request.post(url('admin'))
+                .send({
+                    user: {
+                        abilities: {
+                            users: ['approve']
+                        },
+                        groups: ['admins']
+                    }
+                })
+                .expect(200, done);
+        });
+
+        it('should succeed if the user has the "*" ability and is a member of the "admins" group', function(done) {
+            request.post(url('admin'))
+                .send({
+                    user: {
+                        abilities: {
+                            users: ['*']
+                        },
+                        groups: ['admins']
+                    }
+                })
+                .expect(200, done);
+        });
+
+        it('should fail if the user does not have the "*" ability and is not a member of the "admins" group', function(done) {
+            request.post(url('admin'))
+                .send({
+                    user: {
+                        abilities: {
+                            users: ['approve']
+                        },
+                        groups: ['regular users']
+                    }
+                })
+                .expect(403, done);
+        });
+    })
 });

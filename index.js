@@ -48,5 +48,7 @@ module.exports = function(options) {
     require('./lib/modifiers')(Must, options);
     require('./lib/factories')(Must, options);
     
-    return new Must();
+    return function() {
+        return new Must();
+    };
 };

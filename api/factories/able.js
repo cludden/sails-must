@@ -6,7 +6,6 @@ var _ = require('lodash');
 module.exports = {
     type: 'property',
     factory: function(options, abilities, resource) {
-        console.log('creating "able" policy with', options, abilities, resource);
         return function(req, res, next) {
             abilities = _.isArray(abilities) ? abilities : [abilities];
 

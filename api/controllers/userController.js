@@ -11,5 +11,9 @@ module.exports = {
 
     destroy: function(req, res) {
         res.ok('destroyed!');
+    },
+
+    admin: function(req, res) {
+        res.ok('success!');
     }
 };
