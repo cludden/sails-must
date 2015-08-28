@@ -19,7 +19,7 @@ describe('[controller] user', function() {
                 .send({
                     user: {
                         abilities: {
-                            user: ['create', 'destroy'],
+                            users: ['create', 'destroy'],
                             groups: ['create', 'approve']
                         }
                     }
@@ -32,12 +32,19 @@ describe('[controller] user', function() {
                 .send({
                     user: {
                         abilities: {
-                            user: ['create', 'approve'],
+                            users: ['create', 'approve'],
                             groups: ['create', 'approve']
                         }
                     }
                 })
                 .expect(200, done);
         });
+    });
+
+    describe('#create()', function() {
+        it('should succeed if the user has the "create" ability');
+        it('should succeed if the user has the "*" ability');
+        it('should succeed if the user has both the "create" and the "*" ability');
+        it('should fail if the user does not have either the "create" or the "*" ability');
     });
 });

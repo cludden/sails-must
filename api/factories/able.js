@@ -13,8 +13,7 @@ module.exports = {
             var userAbilities = req.body.user && req.body.user.abilities ? req.body.user.abilities : {};
             userAbilities = userAbilities[resource] || [];
 
-            console.log(abilities, userAbilities);
-            if (_.intersection(abilities, userAbilities.length < abilities.length)) {
+            if (_.intersection(abilities, userAbilities).length < abilities.length) {
                 return next('unauthorized');
             }
             next();
