@@ -10,7 +10,7 @@ a more flexible, more DRY, policy/middleware pattern for `sails.js` apps. Also, 
 ### Background
 
 First, let's remember what basic policies look like in a traditional `sails` app:
-```
+```javascript
 // in config/policies.js
 
     //..
@@ -27,7 +27,7 @@ First, let's remember what basic policies look like in a traditional `sails` app
 
 Not too bad. Let's look at another example from the sails docs:
 
-```
+```javascript
 // in config/policies.js
 
   // ...
@@ -104,31 +104,31 @@ module.exports = {
 Each `must()` call creates a new policy provider, with access to all of your custom policy factories, helpers, and modifiers.
 
 In the above example, the policy factories are:
-- mother
-- nice
-- food
-- able
-- member
-- old
+- `mother`
+- `nice`
+- `food`
+- `able`
+- `member`
+- `old`
 
 The helpers are:
-- be (this is the only helper provided by default)
-- a
-- to
-- have
-- of
+- `be` (this is the only helper provided by default)
+- `a`
+- `to`
+- `have`
+- `of`
 
 The policy modifiers are:
-- not (this is the only modifier provided by default)
-- least
-- most
+- `or` (reserved modifier provided by default, see below for more info)
+- `not` (also provided by default, see below for more info)
+- `least`
+- `most`
 
 #### Factories
 A policy factory is simply a function that returns a valid `sails` policy (which is just an `express` middleware function). From the `express` docs:
 >Middleware is a function with access to the request object (req), the response object (res), and the next middleware in the application’s request-response cycle, commonly denoted by a variable named next.
  
- Middleware can:
- 
+>Middleware can:
  Execute any code.
  Make changes to the request and the response objects.
  End the request-response cycle.
@@ -138,7 +138,7 @@ It receives an `options` argument as the first argument always, followed by what
 
 Let's write our own policy factory, the `food` factory from the above example. This policy checks to see if the user has food for the provided type (`must().have('rabbit').food.build()`). It assumes that he user has been authenticated and attached to the request at some other point, maybe with an **authenticated** policy using `passport`.
 
-```
+```javascript
 // in api/policyFactories/food.js
 
 module.exports = function(options, for) {
@@ -159,7 +159,7 @@ module.exports = function(options, for) {
 ```
 
 Let's write another factory, this time the `old` factory from the example above.
-```
+```javascript
 // in api/policyFactories/old.js
 
 var moment = require('moment'),
@@ -197,14 +197,14 @@ module.exports = function(options, age, units) {
 ```
 
 #### Helpers
-Helpers are simply chainable properties that return the same `must` policy provider. They exist to make your policy definitions easier to read. When called as a function, they are able to accept arguments that will be passed to your factories during the build phase. In the following example, `be` and `to` are helpers, while `able` is the factory
+Helpers are simply chainable properties that return the same `must` policy provider. They exist to make your policy definitions easier to read. When called as a function, they are able to accept arguments that will be passed to your factories during the build phase. In the following example, `be` and `to` are helpers, while `able` is the factory.
 `must().be.able.to('approve', 'users').build()`
 
 In this example, `love` could be a modifier or a helper, `to` is a helper, and `eat` is a factory:
 `must().love.to.eat('pizza').build()`
 
 `be` is the only helper you get by default. But you can specify more like so:
-```
+```javascript
 // in config/policies.js
 
 var must = require('sails-must')({
@@ -216,13 +216,13 @@ var must = require('sails-must')({
 Modifiers allow you to tweak the behavior of a factory. In the example with the `MovieController`, `least` and `most` acted as modifiers, and each modified the behavior of the `old` policy. Modifiers can be one of three types, a `method`, `property`, or `methodProperty`, depending on how you intend to use the modifier. If the modifier will never need to accept arguments, use the `property` type. If the policy will always accept arguments, use the `method` type. If the policy will sometimes except arguments, use the `methodProperty` type.
 
 A good example of a `property` modifier is the built in `not` modifier. This modifier modifies the behavior of the corresponding factory by negating the outcome.
-```
+```javascript
 must().love.to.eat('pizza').build() // if this one passes
 must().not.love.to.eat('pizza').build() // this one will fail
 ```
 
 The `not` modifier looks like this:
-```
+```javascript
 module.exports = {
     type: 'property',
     fn: function() {
@@ -232,13 +232,13 @@ module.exports = {
 ```
 
 Let's write our first modifier, the `least` modifier. We will use the `method` type, meaning we will always call it as a function.
-```
+```javascript
 must().be.at.least(17, 'years').old.build();
 must().be.at.least(6, 'feet').tall.build();
 ```
 
 the modifier definition:
-```
+```javascript
 // in api/policyModifiers/least.js
 
 module.exports = {
@@ -254,13 +254,13 @@ module.exports = {
 ```
 
 Now, let's try writing a `methodProperty` modifier. These modifiers contain a `fn` property that defines a function to be called when the modifier is used as a function, as well as an additional `behavior` property that contains a function that will be called when the modifier is used as a function OR a property.
-```
+```javascript
 must().like.to.eat('pizza').build();
 must().like('pizza').for.breakfast.build();
 ```
 
 the modifier definition:
-```
+```javascript
 // in api/policyModifiers/like.js
 
 module.exports = {
@@ -280,7 +280,7 @@ module.exports = {
 ### Additional Info
 #### The *or* modifier
 The or modifier allows you to combine multiple policies into a single policy. During the build phase, the policies will be converted into a single parent policy that executes all child policies in parallel. If any of the policies return `next()`, the parent policy will return `next()`. When `or` is called, the current policy chain (factory, helpers, modifiers) is converted into a single policy object and added to a queue. When the `build()` method is called, the remaining policy chain is converted into a single policy object and added to the queue.
-```
+```javascript
 // the first policy chain: .be.at.least(13, 'years').old
 // the second policy chain: .at.least(5, 'feet').tall
 must().be.at.least(13, 'years').old.or.at.least(5, 'feet').tall.build();
@@ -291,18 +291,18 @@ must().be.at.least(13, 'years').old.or.at.least(5, 'feet').tall.build();
 The build methods takes all policy objects in the queue and converts them into a single middleware function / sails policy.
 
 In the following example:
-```
+```javascript
 must().be.at.least(13, 'years').old.build()
 ```
 
 a single policy would be created by calling the `old` factory function with the following arguments:
-```
+```javascript
 var policy = old({modifiers: ['atLeast']}, 13, 'years');
 ```
 
 ### Configuration
 `sails-must` takes an optional `options` hash when it is first required
-```
+```javascript
 var must = require('sails-must')({
     helpers: [] // an array of additional helpers to create
     paths: {
