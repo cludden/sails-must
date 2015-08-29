@@ -5,5 +5,7 @@ module.exports = {
     fn: function() {
         this.args = this.args.concat(Array.prototype.slice.call(arguments));
     },
-    chainableFn: function() {}
+    behavior: function() {
+        this.options.modifiers.push('atMost');
+    }
 };

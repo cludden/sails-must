@@ -42,9 +42,9 @@ module.exports = function(options) {
         util.addChainableMethod(this.prototype, name, fn, chainingBehavior);
     };
 
-    Must.prototype.args = [];
+    //Must.prototype.args = [];
 
-    require('./lib/chainables')(Must, options);
+    require('./lib/helpers')(Must, options);
     require('./lib/modifiers')(Must, options);
     require('./lib/factories')(Must, options);
     

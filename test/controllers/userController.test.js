@@ -149,7 +149,7 @@ describe('[controller] user', function() {
             request.post(url('adults'))
                 .send({
                     user: {
-                        birthday: '2000-01-01'
+                        dateOfBirth: '2000-01-01'
                     }
                 })
                 .expect(403, done);
@@ -159,7 +159,7 @@ describe('[controller] user', function() {
             request.post(url('adults'))
                 .send({
                     user: {
-                        birthday: '1990-01-01'
+                        dateOfBirth: '1990-01-01'
                     }
                 })
                 .expect(200, done);
@@ -171,7 +171,7 @@ describe('[controller] user', function() {
             request.post(url('kids'))
                 .send({
                     user: {
-                        birthday: '2000-01-01'
+                        dateOfBirth: '2000-01-01'
                     }
                 })
                 .expect(200, done);
@@ -181,7 +181,7 @@ describe('[controller] user', function() {
             request.post(url('kids'))
                 .send({
                     user: {
-                        birthday: '1990-01-01'
+                        dateOfBirth: '1990-01-01'
                     }
                 })
                 .expect(403, done);
@@ -193,7 +193,7 @@ describe('[controller] user', function() {
             request.post(url('teens'))
                 .send({
                     user: {
-                        birthday: '2010-01-01'
+                        dateOfBirth: '2010-01-01'
                     }
                 })
                 .expect(403, done);
@@ -203,7 +203,7 @@ describe('[controller] user', function() {
             request.post(url('teens'))
                 .send({
                     user: {
-                        birthday: '1990-01-01'
+                        dateOfBirth: '1990-01-01'
                     }
                 })
                 .expect(403, done);
@@ -213,7 +213,7 @@ describe('[controller] user', function() {
             request.post(url('teens'))
                 .send({
                     user: {
-                        birthday: '2000-01-01'
+                        dateOfBirth: '2000-01-01'
                     }
                 })
                 .expect(200, done);
