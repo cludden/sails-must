@@ -57,7 +57,7 @@ What we need is a way to configure policies, a way to pass parameters to policie
 
 A sample policy configuration:
 
-```
+```javascript
 // in config/policies.js
 
 var must = require('sails-must')();
@@ -71,14 +71,15 @@ module.exports = {
     
     DogController: {
         nurture: must().be.a('dog').mother.build(),
-        feed: [must().be.nice.to('dog').build(), must().have('dog').food.build()]
+        feed: [must().be.nice.to('dogs').build(), must().have('dog').food.build()]
     }
     //..
     
     //..
     SomeController: {
-        someAction: [must().be.able.to('read', 'someModel').build()],
-        someOtherAction: [must().be.able.to(['read, 'write'], 'someOtherModel').or.be.a.member.of('admins').build()]
+        someAction: must().be.able.to('read', 'someModel').build(),
+        someOtherAction: must().be.able.to('write', 'someOtherModel').or.be.a.member.of('admins').build(),
+        someComplexAction: must().be.able.to(['write', 'publish'], 'someDifferentModel').build()
     }
     //..
     
