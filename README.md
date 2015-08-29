@@ -1,13 +1,13 @@
 # sails-must
 
-### Purpose
+## Purpose
 a more flexible, more DRY, policy/middleware pattern for `sails.js` apps. Also, works with any `express.js` app.
 
 
-### Install
+## Install
 `npm install --save sails-must`
 
-### Background
+## Background
 
 First, let's remember what basic policies look like in a traditional `sails` app:
 ```javascript
@@ -52,7 +52,7 @@ This doesn't look too bad at first, but what happens when we add a DogController
 
 The same implications could apply for a site that uses role based access control and has numerous roles, or a site for an organization with numerous departments (Accounting, Finance, HR, IT, Sales, etc). We shouldn't have to write a thousand different policies to cover every possible scenario in our access control system.
 
-### Getting Started
+## Getting Started
 What we need is a way to configure policies, a way to pass parameters to policies that determine their behavior. That's what this module provides! Take a look:
 
 A sample policy configuration:
@@ -100,7 +100,7 @@ module.exports = {
 };
 ```
 
-### API
+## API
 Each `must()` call creates a new policy provider, with access to all of your custom policy factories, helpers, and modifiers.
 
 In the above example, the policy factories are:
@@ -124,7 +124,7 @@ The policy modifiers are:
 - `least`
 - `most`
 
-#### Factories
+### Factories
 A policy factory is simply a function that returns a valid `sails` policy (which is just an `express` middleware function). From the `express` docs:
 >Middleware is a function with access to the request object (req), the response object (res), and the next middleware in the application’s request-response cycle, commonly denoted by a variable named next.
  
@@ -196,8 +196,8 @@ module.exports = function(options, age, units) {
 };
 ```
 
-#### Helpers
-Helpers are simply chainable properties that return the same `must` policy provider. They exist to make your policy definitions easier to read. When called as a function, they are able to accept arguments that will be passed to your factories during the build phase. In the following example, `be` and `to` are helpers, while `able` is the factory.
+### Helpers
+Helpers are simply chainable properties that return the same `must` policy provider. They exist to make your policy definitions easier to read. When called as a function, they are able to accept arguments that will be passed to your factories during the build phase. In the following example, `be` and `to` are helpers, while `able` is the factory:
 `must().be.able.to('approve', 'users').build()`
 
 In this example, `love` could be a modifier or a helper, `to` is a helper, and `eat` is a factory:
@@ -212,7 +212,7 @@ var must = require('sails-must')({
 });
 ```
 
-#### Modifiers
+### Modifiers
 Modifiers allow you to tweak the behavior of a factory. In the example with the `MovieController`, `least` and `most` acted as modifiers, and each modified the behavior of the `old` policy. Modifiers can be one of three types, a `method`, `property`, or `methodProperty`, depending on how you intend to use the modifier. If the modifier will never need to accept arguments, use the `property` type. If the policy will always accept arguments, use the `method` type. If the policy will sometimes except arguments, use the `methodProperty` type.
 
 A good example of a `property` modifier is the built in `not` modifier. This modifier modifies the behavior of the corresponding factory by negating the outcome.
@@ -277,9 +277,9 @@ module.exports = {
 };
 ```
 
-### Additional Info
-#### The *or* modifier
-The or modifier allows you to combine multiple policies into a single policy. During the build phase, the policies will be converted into a single parent policy that executes all child policies in parallel. If any of the policies return `next()`, the parent policy will return `next()`. When `or` is called, the current policy chain (factory, helpers, modifiers) is converted into a single policy object and added to a queue. When the `build()` method is called, the remaining policy chain is converted into a single policy object and added to the queue.
+## Additional Info
+### The *or* modifier
+The `or` modifier allows you to combine multiple policies into a single policy. During the build phase, the policies will be converted into a single parent policy that executes all child policies in parallel. If any of the policies return `next()`, the parent policy will return `next()`. When `or` is called, the current policy chain (factory, helpers, modifiers) is converted into a single policy object and added to a queue. When the `build()` method is called, the remaining policy chain is converted into a single policy object and added to the queue.
 ```javascript
 // the first policy chain: .be.at.least(13, 'years').old
 // the second policy chain: .at.least(5, 'feet').tall
@@ -287,8 +287,8 @@ must().be.at.least(13, 'years').old.or.at.least(5, 'feet').tall.build();
 
 ```
 
-#### The *build* phase
-The build methods takes all policy objects in the queue and converts them into a single middleware function / sails policy.
+### The *build* phase
+The build method takes all policy objects in the queue and converts them into a single middleware function / sails policy.
 
 In the following example:
 ```javascript
@@ -300,7 +300,7 @@ a single policy would be created by calling the `old` factory function with the 
 var policy = old({modifiers: ['atLeast']}, 13, 'years');
 ```
 
-### Configuration
+## Configuration
 `sails-must` takes an optional `options` hash when it is first required
 ```javascript
 var must = require('sails-must')({
@@ -312,19 +312,20 @@ var must = require('sails-must')({
 });
 ```
 
-### Testing
+## Testing
 `npm test`
 
-### To Do
-[ ] implement has `sails-hook` replacing the default `policy` hook and remove the need to call `.build()` on every policy
+## To Do
+- [x] update docs
+- [ ] implement has `sails-hook` replacing the default `policy` hook and remove the need to call `.build()` on every policy
 
-### Contributing
+## Contributing
 1. [Fork it](https://github.com/cludden/sails-must/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-### License
+## License
 Copyright (c) 2015 Chris Ludden
 Licensed under the [MIT license](LICENSE.md).
