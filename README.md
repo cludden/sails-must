@@ -1,8 +1,8 @@
 # sails-must
-
-## Purpose
 a more flexible, more DRY, policy/middleware pattern for `sails.js` apps. Also, works with any `express.js` app.
 
+## Purpose
+A module that provides a way build complex and configurable middleware functions out of simple factories and modifiers. These middleware functions are perfect for `sails` apps, but they work just as good for traditional `express` apps.
 
 ## Install
 `npm install --save sails-must`
@@ -327,5 +327,5 @@ var must = require('sails-must')({
 5. Create new Pull Request
 
 ## License
-Copyright (c) 2015 Chris Ludden
+Copyright (c) 2015 Chris Ludden.
 Licensed under the [MIT license](LICENSE.md).
