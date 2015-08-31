@@ -7,6 +7,51 @@ A module that provides a way build complex and configurable middleware functions
 ## Install
 `npm install --save sails-must`
 
+If using with a `sails` app, install the hook as well:
+`npm install --save sails-hook-must`
+
+Then, disable the default `policy` hook:
+```javascript
+// in config/hooks.js
+
+module.exports.hooks = {
+    policies: false
+};
+```
+
+## Use with `sails-hook-must`
+There is a `sails-hook` sibling module that can be used along with this module to improve usability. This hook will take care of auto-building all of the policies in your `config/policies.js` file. If you are not using the hook, you will need to manually build all of your policies by calling `.build()` at the end of each definition. See the following example for clarification:
+
+With the hook installed:
+```javascript
+// in config/policies.js
+
+module.exports.policies = {
+    //..
+    SomeController: {
+        someAction: must().be.able.to('read', 'someModel'),
+        someOtherAction: must().be.able.to('write', 'someOtherModel').or.be.a.member.of('admins'),
+        someComplexAction: must().be.able.to(['write', 'publish'], 'someDifferentModel')
+    }
+    //..
+}
+```
+
+Without the hook installed:
+```javascript
+// in config/policies.js
+
+module.exports.policies = {
+    //..
+    SomeController: {
+        someAction: must().be.able.to('read', 'someModel').build(),
+        someOtherAction: must().be.able.to('write', 'someOtherModel').or.be.a.member.of('admins').build(),
+        someComplexAction: must().be.able.to(['write', 'publish'], 'someDifferentModel').build()
+    }
+    //..
+};
+```
+
 ## Background
 First, let's remember what basic policies look like in a traditional `sails` app:
 ```javascript
@@ -99,8 +144,17 @@ module.exports = {
 };
 ```
 
-In the above example, we've assumed you've installed the corresponding `sails-hook-must` module and disabled the default `policies` hook in your `config/hooks.js` file. If not, you will need to manually build your policies via the `build` method like so:
-`must().be.at.least(18, 'years').old.build()`
+In the above example, we've assumed you have installed the corresponding `sails-hook-must` module and disabled the default `policies` hook in your `config/hooks.js` file. This hook takes care of auto-building your policies for you. If not, you will need to manually build your policies via the `build` method like so:
+
+```javascript
+//..
+MovieController: {
+    adults: must().be.at.least(18, 'years').old.build(),
+    kids: must().be.at.most(17, 'years').old.build(),
+    teens: [must().be.at.least(13, 'years').old.build(), must().be.at.most(19, 'years').old.build()]
+}
+//..
+```
 
 ## API
 Each `must()` call creates a new policy provider, with access to all of your custom policy factories, helpers, and modifiers.
@@ -138,7 +192,7 @@ A policy factory is simply a function that returns a valid `sails` policy (which
  
 It receives an `options` argument as the first argument always, followed by whatever parameters you choose. The `options` argument contains a list of all of the modifiers used as well as any custom data provided by the modifiers.
 
-Let's write our own policy factory, the `food` factory from the above example. This policy checks to see if the user has food for the provided type (`must().have('rabbit').food`). It assumes that he user has been authenticated and attached to the request at some other point, maybe with an **authenticated** policy using `passport`.
+Let's write our own policy factory, the `food` factory from the above example. This policy checks to see if the user has food for the provided type (`must().have('rabbit').food`). It assumes that the user has been authenticated and attached to the request at some other point, maybe with an **authenticated** policy using `passport`.
 
 ```javascript
 // in api/policyFactories/food.js
@@ -161,7 +215,7 @@ module.exports = function(options, for) {
 ```
 
 Let's write another factory, this time the `old` factory from the example above. This factory will provide policies that check if the user is an appropriate age. We'll be able to use our factory like this:
-```
+```javascript
 must().be(32, 'years').old
 must().be(1000, 'months').old
 must().be.at.least(18, 'years').old // using the 'least' modifier
