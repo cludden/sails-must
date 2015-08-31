@@ -16,7 +16,8 @@ before(function(done) {
         hooks: {
             pubsub: false,
             grunt: false,
-            views: false
+            views: false,
+            policies: false
         }
     }, function(err, server) {
         sails = server;
