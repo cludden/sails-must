@@ -5,10 +5,14 @@ a more flexible, more DRY, policy/middleware pattern for `sails.js` apps. Also, 
 A module that provides a way build complex and configurable middleware functions out of simple factories and modifiers. These middleware functions are perfect for `sails` apps, but they work just as good for traditional `express` apps.
 
 ## Install
-`npm install --save sails-must`
+```
+npm install --save sails-must
+```
 
 If using with a `sails` app, install the hook as well:
-```npm install --save sails-hook-must```
+```
+npm install --save sails-hook-must
+```
 
 Then, disable the default `policy` hook:
 ```javascript
