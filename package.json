@@ -1,13 +1,12 @@
 {
   "name": "sails-must",
   "version": "0.1.1",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "mocha test/bootstrap.test.js test/**/*.test.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Chris Ludden",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/cludden/sails-must.git"
