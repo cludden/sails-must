@@ -8,7 +8,7 @@ A module that provides a way build complex and configurable middleware functions
 `npm install --save sails-must`
 
 If using with a `sails` app, install the hook as well:
-`npm install --save sails-hook-must`
+```npm install --save sails-hook-must```
 
 Then, disable the default `policy` hook:
 ```javascript
@@ -16,39 +16,6 @@ Then, disable the default `policy` hook:
 
 module.exports.hooks = {
     policies: false
-};
-```
-
-## Use with `sails-hook-must`
-There is a `sails-hook` sibling module that can be used along with this module to improve usability. This hook will take care of auto-building all of the policies in your `config/policies.js` file. If you are not using the hook, you will need to manually build all of your policies by calling `.build()` at the end of each definition. See the following example for clarification:
-
-With the hook installed:
-```javascript
-// in config/policies.js
-
-module.exports.policies = {
-    //..
-    SomeController: {
-        someAction: must().be.able.to('read', 'someModel'),
-        someOtherAction: must().be.able.to('write', 'someOtherModel').or.be.a.member.of('admins'),
-        someComplexAction: must().be.able.to(['write', 'publish'], 'someDifferentModel')
-    }
-    //..
-}
-```
-
-Without the hook installed:
-```javascript
-// in config/policies.js
-
-module.exports.policies = {
-    //..
-    SomeController: {
-        someAction: must().be.able.to('read', 'someModel').build(),
-        someOtherAction: must().be.able.to('write', 'someOtherModel').or.be.a.member.of('admins').build(),
-        someComplexAction: must().be.able.to(['write', 'publish'], 'someDifferentModel').build()
-    }
-    //..
 };
 ```
 
