@@ -13,12 +13,50 @@ var _ = require ('lodash');
 
 module.exports = function(options) {
     var options = options ? options : {};
-    
+
+    // define default values
     _.defaults (options, {
+        /**
+         * An array of default helpers
+         */
         chainables: ['be'],
+
+        /**
+         * A map of default paths used by this module
+         */
         paths: {
             factories: '/api/policyFactories',
             modifiers: '/api/policyModifiers'
+        },
+
+        /**
+         * The policy response handler. By default, if an error occurs in one of the policies in the policy chain, next
+         * will be called with the error. If at least of one of the policies in the policy chain called next with a null value,
+         * the policy will call next(). If the policy failed, the policy will call next('Unauthorized').
+         *
+         * @param {Object|String} err - unexpected error thrown by one of the policies in the policy chain
+         * @param {Array} errors - the results of each executed policy
+         * @param {Object} req - the request object
+         * @param {Object} res - the response object
+         * @param {Function} next - next middleware function
+         */
+        response: function(err, errors, req, res, next) {
+            if (err) return next(err);
+
+            var atLeastOneSuccessful = false;
+            _.every(errors, function(error) {
+                if (error === null) {
+                    atLeastOneSuccessful = true;
+                    return false;
+                }
+                return true;
+            });
+
+            if (atLeastOneSuccessful) {
+                return next();
+            }
+
+            return next('Unauthorized');
         }
     });
 
@@ -47,6 +85,7 @@ module.exports = function(options) {
     require('./lib/helpers')(Must, options);
     require('./lib/modifiers')(Must, options);
     require('./lib/factories')(Must, options);
+    Must.prototype.response = options.response;
     
     return function() {
         return new Must();
