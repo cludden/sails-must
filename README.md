@@ -316,6 +316,46 @@ module.exports = {
 };
 ```
 
+### Reponse
+By default, when a policy fails by calling `next` with a truthy value, `sails-must` will default to calling `next` with 'Unauthorized'. In order to customize the behavior of failed policy responses, override the default response handler by passing a `response` key in your config options.  
+
+The example below shows the default policy response handler.
+```javascript
+// in config/policies.js
+
+var must = require('sails-must')({
+    /**
+     * The policy response handler. By default, if an error occurs in one of the policies in the policy chain, next
+     * will be called with the error. If at least of one of the policies in the policy chain called next with a null value,
+     * the policy will call next(). If the policy failed, the policy will call next('Unauthorized').
+     *
+     * @param {Object|String} err - unexpected error thrown by one of the policies in the policy chain
+     * @param {Array} errors - the results of each executed policy
+     * @param {Object} req - the request object
+     * @param {Object} res - the response object
+     * @param {Function} next - next middleware function
+     */
+    response: function(err, errors, req, res, next) {
+        if (err) return next(err);
+
+        var atLeastOneSuccessful = false;
+        _.every(errors, function(error) {
+            if (error === null) {
+                atLeastOneSuccessful = true;
+                return false;
+            }
+            return true;
+        });
+
+        if (atLeastOneSuccessful) {
+            return next();
+        }
+
+        return next('Unauthorized');
+    }
+});
+```
+
 ## Additional Info
 ### The *or* modifier
 The `or` modifier, which is available by default, allows you to combine multiple policies into a single policy. During the build phase, the policies will be converted into a single parent policy that executes all child policies in parallel. If any of the policies return `next()`, the parent policy will return `next()`. When `or` is called, the current policy chain (factory, helpers, modifiers) is converted into a single policy object and added to a queue. When the `build()` method is called, the remaining policy chain is converted into a single policy object and added to the queue.
