@@ -16,11 +16,15 @@ npm install --save sails-hook-must
 
 Then, disable the default `policy` hook:
 ```javascript
-// in config/hooks.js
+// in .sailsrc
 
-module.exports.hooks = {
-    policies: false
-};
+{
+    //..
+    "hooks": {
+        "policies": false
+    }
+    //..
+}
 ```
 
 ## Background
@@ -68,7 +72,7 @@ This doesn't look too bad at first, but what happens when we add a DogController
 The same implications could apply for a site that uses role based access control and has numerous roles, or a site for an organization with numerous departments (Accounting, Finance, HR, IT, Sales, etc). We shouldn't have to write a thousand different policies to cover every possible scenario in our access control system.
 
 ## Getting Started
-What we need is a way to configure policies, a way to pass parameters to policies that determine their behavior. That's what this module provides! Take a look:
+What we need is a way to configure policies by passing parameters to the policies that determine their behavior. That's what this module provides! Take a look:
 
 A sample policy configuration:
 
@@ -387,6 +391,9 @@ var must = require('sails-must')({
     paths: {
         factories: '/path/to/factories' // defaults to /api/policyFactories
         modifiers: '/path/to/modifiers' // defaults to /api/policyModifiers
+    },
+    response: function(err, errors, req, res, next) {
+        // define custom response handler here
     }
 });
 ```
