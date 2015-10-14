@@ -1,6 +1,6 @@
 {
   "name": "sails-must",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "index.js",
   "scripts": {
     "test": "mocha test/bootstrap.test.js test/**/*.test.js"
